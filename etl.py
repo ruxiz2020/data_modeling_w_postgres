@@ -9,22 +9,44 @@ warnings.filterwarnings('ignore')
 
 
 def process_song_file(cur, filepath):
+    '''
+    This function read in json data from song_file filepath,
+    prepare data, and call insert function to insert into song_table & artist_table.
+
+            Parameters:
+                    a (cur): conn.cursor(), an iterator fucntion that operates on db
+                    b (filepath): file path to read in json data
+
+            Returns:
+                    No value returned
+    '''
     # open song file
     df = pd.read_json(filepath, lines=True)
 
     # insert song record
     song_data = df.ix[0,:][['song_id', 'title', 'artist_id', 'year', 'duration']].values
     cur.execute(song_table_insert, song_data)
-    
+
     # insert artist record
     df['artist_latitude'] = df['artist_latitude'].astype(str)
     df['artist_longitude'] = df['artist_longitude'].astype(str)
-    artist_data = df.ix[0,:].loc[['artist_id', 'artist_name', 'artist_location', 
+    artist_data = df.ix[0,:].loc[['artist_id', 'artist_name', 'artist_location',
                               'artist_latitude', 'artist_longitude']].values
     cur.execute(artist_table_insert, artist_data)
 
 
 def process_log_file(cur, filepath):
+    '''
+    This function read in json data from log_file filepath,
+    prepare data, and call insert function to insert into time_table & songplay_table.
+
+            Parameters:
+                    a (cur): conn.cursor(), an iterator fucntion that operates on db
+                    b (filepath): file path to read in json data
+
+            Returns:
+                    No value returned
+    '''
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -33,7 +55,7 @@ def process_log_file(cur, filepath):
 
     # convert timestamp column to datetime
     t = pd.to_datetime(df['ts'])
-    
+
     # insert time data records
     time_data = [t, t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.dayofweek]
     column_labels = ['start_time', 'hour', 'day', 'week', 'month', 'year', 'weekday']
@@ -51,25 +73,38 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-        
+
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
-        
+
         if results:
             songid, artistid = results
         else:
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = np.array([pd.to_datetime(row.ts, unit='ms'), 
-                              row.userId, row.level, songid, artistid, 
+        songplay_data = np.array([pd.to_datetime(row.ts, unit='ms'),
+                              row.userId, row.level, songid, artistid,
                      row.sessionId, row.location, row.userAgent])
-    
+
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
+    '''
+    This driver function is used to execute process_song_file & process_log_file
+    on inidividual json files and insert into sql tables iteratively.
+
+            Parameters:
+                    a (cur): conn.cursor(), an iterator fucntion that operates on db
+                    b (conn): Connection object that represents the database
+                    c (filepath): file path to read in json data
+                    d (func): function to call
+
+            Returns:
+                    No value returned
+    '''
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -99,11 +134,11 @@ def main():
 
 
 if __name__ == "__main__":
-    
+
     # take care of the complain about numpy int64
     import numpy
     from psycopg2.extensions import register_adapter, AsIs
-    
+
     def addapt_numpy_float64(numpy_float64):
         return AsIs(numpy_float64)
     def addapt_numpy_int64(numpy_int64):
