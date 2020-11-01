@@ -18,6 +18,13 @@ A sample data from a single song file looks like:
 ```json
 {"num_songs": 1, "artist_id": "ARJIE2Y1187B994AB7", "artist_latitude": null, "artist_longitude": null, "artist_location": "", "artist_name": "Line Renaud", "song_id": "SOUPIRU12A6D4FA1E1", "title": "Der Kleine Dompfaff", "duration": 152.92036, "year": 0}
 ```
+### Code files in the folder
+`sql_queries.py` is used to create, drop, or insert data to each table.
+`create_db.py` is used to create database if not yey exists.
+`create_tables.py` calls `sql_queries.py` to create your database and tables.
+`etl.py` is meant to develop ETL processes for each table, which specifically read in json files and insert data to the correct sql tables.
+`test.ipynb` is used to confirm the creation of your tables with the correct columns.
+
 
 ### How to run the codes in this repo
 
@@ -37,3 +44,8 @@ python etl.py
 ```
 
 Finally, use test.ipynb to check the results in each tables.
+
+### examples of each table after etl process
+
+`%sql SELECT * FROM songplay_table LIMIT 5;`
+![songplay_table](songplay_table.png)
