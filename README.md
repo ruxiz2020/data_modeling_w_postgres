@@ -47,5 +47,17 @@ Finally, use test.ipynb to check the results in each tables.
 
 ### examples of each table after etl process
 
-`%sql SELECT * FROM songplay_table LIMIT 5;`
+`%sql SELECT * FROM songplay_table;`
 ![songplay_table](songplay_table.png)
+
+`%sql SELECT * FROM song_table;`
+![song_table](song_table.png)
+
+`%sql SELECT * FROM user_table;`
+![user_table](user_table.png)
+
+`%sql SELECT * FROM artist_table;`
+![artist_table](artist_table.png)
+
+`%sql SELECT * FROM time_table;`
+![time_table](time_table.png)
